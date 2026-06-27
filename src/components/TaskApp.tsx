@@ -12,7 +12,7 @@ import { TaskModal } from './TaskModal'
 type ModalState = { open: false } | { open: true; editing: Task | null }
 
 export function TaskApp({ session }: { session: Session }) {
-  const { tasks, loading, error, reload, addTask, editTask, toggleComplete } = useTasks()
+  const { tasks, loading, error, reload, addTask, editTask, toggleComplete, removeTask } = useTasks()
   const [sortKey, setSortKey] = useState<SortKey>('urgency')
   const [filters, setFilters] = useState<Filters>({})
   const [modal, setModal] = useState<ModalState>({ open: false })
@@ -34,6 +34,15 @@ export function TaskApp({ session }: { session: Session }) {
       await toggleComplete(task)
     } catch (e) {
       setActionError(e instanceof Error ? e.message : 'Could not update the task.')
+    }
+  }
+
+  async function handleDelete(id: string) {
+    setActionError(null)
+    try {
+      await removeTask(id)
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : 'Could not delete the task.')
     }
   }
 
@@ -89,6 +98,7 @@ export function TaskApp({ session }: { session: Session }) {
           totalCount={tasks.length}
           onToggle={handleToggle}
           onEdit={(task) => setModal({ open: true, editing: task })}
+          onDelete={handleDelete}
         />
       </main>
 

@@ -51,13 +51,24 @@ describe('sortTasks', () => {
     expect(sorted.map((t) => t.id)).toEqual([newer.id, older.id])
   })
 
-  it('keeps completed tasks in their natural position (not sunk to the bottom)', () => {
-    const doneTop = makeTask({ urgency: 'Today', priority: 'High', completed: true })
-    const openBottom = makeTask({ urgency: 'Later', priority: 'Low', completed: false })
+  it('sinks completed tasks below open ones, even when more urgent', () => {
+    const doneUrgent = makeTask({ urgency: 'Today', priority: 'High', completed: true })
+    const openRelaxed = makeTask({ urgency: 'Later', priority: 'Low', completed: false })
 
-    const sorted = sortTasks([openBottom, doneTop])
+    const sorted = sortTasks([doneUrgent, openRelaxed])
 
-    expect(sorted.map((t) => t.id)).toEqual([doneTop.id, openBottom.id])
+    expect(sorted.map((t) => t.id)).toEqual([openRelaxed.id, doneUrgent.id])
+  })
+
+  it('orders open tasks before completed, each group sorted by the key', () => {
+    const openHigh = makeTask({ urgency: 'Today', priority: 'High', completed: false })
+    const openLow = makeTask({ urgency: 'Later', priority: 'Low', completed: false })
+    const doneHigh = makeTask({ urgency: 'Today', priority: 'High', completed: true })
+    const doneLow = makeTask({ urgency: 'Later', priority: 'Low', completed: true })
+
+    const sorted = sortTasks([doneLow, openLow, doneHigh, openHigh])
+
+    expect(sorted.map((t) => t.id)).toEqual([openHigh.id, openLow.id, doneHigh.id, doneLow.id])
   })
 
   it('does not mutate its input', () => {

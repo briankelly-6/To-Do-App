@@ -15,12 +15,14 @@ export function TaskList({
   totalCount,
   onToggle,
   onEdit,
+  onDelete,
 }: {
   tasks: Task[]
   loading: boolean
   totalCount: number
   onToggle: (task: Task) => void
   onEdit: (task: Task) => void
+  onDelete: (id: string) => void
 }) {
   if (loading && totalCount === 0) return <Empty>Loading…</Empty>
   if (totalCount === 0) return <Empty>No tasks yet — add your first one.</Empty>
@@ -29,7 +31,7 @@ export function TaskList({
   return (
     <ul className="space-y-2">
       {tasks.map((task) => (
-        <TaskRow key={task.id} task={task} onToggle={onToggle} onEdit={onEdit} />
+        <TaskRow key={task.id} task={task} onToggle={onToggle} onEdit={onEdit} onDelete={onDelete} />
       ))}
     </ul>
   )

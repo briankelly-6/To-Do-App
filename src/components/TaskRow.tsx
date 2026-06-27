@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { Priority, Task } from '../data/types'
 
 const priorityPill: Record<Priority, string> = {
@@ -16,12 +17,15 @@ export function TaskRow({
   task,
   onToggle,
   onEdit,
+  onDelete,
 }: {
   task: Task
   onToggle: (task: Task) => void
   onEdit: (task: Task) => void
+  onDelete: (id: string) => void
 }) {
   const { completed } = task
+  const [confirming, setConfirming] = useState(false)
 
   return (
     <li className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
@@ -71,6 +75,42 @@ export function TaskRow({
           <Pill>{task.category}</Pill>
         </span>
       </button>
+
+      {confirming ? (
+        <div className="flex shrink-0 items-center gap-1">
+          <button
+            type="button"
+            onClick={() => onDelete(task.id)}
+            className="rounded-md bg-red-600 px-2 py-1 text-xs font-medium text-white transition hover:bg-red-700"
+          >
+            Delete
+          </button>
+          <button
+            type="button"
+            onClick={() => setConfirming(false)}
+            className="rounded-md px-2 py-1 text-xs font-medium text-slate-500 transition hover:bg-slate-100"
+          >
+            Cancel
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setConfirming(true)}
+          aria-label={`Delete ${task.name}`}
+          className="shrink-0 rounded-md p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
+        >
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden="true">
+            <path
+              d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m1 0v12a1 1 0 01-1 1H8a1 1 0 01-1-1V7m3 4v5m4-5v5"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      )}
     </li>
   )
 }

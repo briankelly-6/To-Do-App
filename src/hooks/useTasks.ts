@@ -10,6 +10,7 @@ export interface UseTasks {
   addTask: (input: TaskInput) => Promise<void>
   editTask: (id: string, input: TaskInput) => Promise<void>
   toggleComplete: (task: Task) => Promise<void>
+  removeTask: (id: string) => Promise<void>
 }
 
 function messageOf(e: unknown): string {
@@ -60,5 +61,10 @@ export function useTasks(): UseTasks {
     setTasks((prev) => prev.map((t) => (t.id === task.id ? updated : t)))
   }, [])
 
-  return { tasks, loading, error, reload, addTask, editTask, toggleComplete }
+  const removeTask = useCallback(async (id: string) => {
+    await api.deleteTask(id)
+    setTasks((prev) => prev.filter((t) => t.id !== id))
+  }, [])
+
+  return { tasks, loading, error, reload, addTask, editTask, toggleComplete, removeTask }
 }

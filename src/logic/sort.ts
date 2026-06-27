@@ -17,22 +17,25 @@ const CATEGORY_RANK = rankMap<Category>(CATEGORIES)
 const byUrgency = (a: Task, b: Task) => URGENCY_RANK[a.urgency] - URGENCY_RANK[b.urgency]
 const byPriority = (a: Task, b: Task) => PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority]
 const byCategory = (a: Task, b: Task) => CATEGORY_RANK[a.category] - CATEGORY_RANK[b.category]
+// Open tasks first; completed tasks sink to the bottom (applied before every key).
+const byCompleted = (a: Task, b: Task) => Number(a.completed) - Number(b.completed)
 // Newest first, as the final stable tiebreaker.
 const byNewest = (a: Task, b: Task) => b.created_at.localeCompare(a.created_at)
 
-// Each sort key leads with its field, then falls back through sensible secondaries
-// so ordering is always fully determined. The default key, "urgency", produces the
-// spec's default ordering: urgency, then priority, then newest.
+// Completion is always the primary split (open above completed). After that each
+// sort key leads with its field and falls back through sensible secondaries so
+// ordering is fully determined. The default key, "urgency", produces the spec's
+// default ordering within each group: urgency, then priority, then newest.
 const COMPARATORS: Record<SortKey, Array<(a: Task, b: Task) => number>> = {
-  urgency: [byUrgency, byPriority, byNewest],
-  priority: [byPriority, byUrgency, byNewest],
-  category: [byCategory, byUrgency, byPriority, byNewest],
+  urgency: [byCompleted, byUrgency, byPriority, byNewest],
+  priority: [byCompleted, byPriority, byUrgency, byNewest],
+  category: [byCompleted, byCategory, byUrgency, byPriority, byNewest],
 }
 
 /**
  * Return a new array sorted by the given key (default: urgency). Pure — never
- * mutates its input. Completed tasks are sorted in their natural position
- * (they are not moved to the bottom); they're only styled differently in the UI.
+ * mutates its input. Completed tasks always sink below open ones, then are sorted
+ * among themselves by the same key.
  */
 export function sortTasks(tasks: Task[], key: SortKey = 'urgency'): Task[] {
   const comparators = COMPARATORS[key]
