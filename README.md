@@ -6,8 +6,11 @@ deployed on Vercel.
 
 ## Features
 
-- **Magic-link sign-in** (passwordless). The session is stored and auto-refreshed,
-  so you stay signed in across browser restarts — one login per device.
+- **Passwordless email sign-in**: enter your email and you're sent a **6-digit code**
+  (and a magic link) — type the code or click the link. The code path is robust to
+  corporate email link-scanners (e.g. Mimecast) that can consume one-time links. The
+  session is stored and auto-refreshed, so you stay signed in across browser restarts —
+  one login per device.
 - **Add / edit tasks** in a pop-up modal. Name is required; priority, urgency, and
   category are fixed dropdowns pre-filled with sensible defaults.
 - **Quick-add**: the add modal stays open after saving (name cleared, focus returned)
@@ -65,11 +68,24 @@ supabase/migrations/  database schema (table + RLS policies)
 2. In the dashboard, open **SQL Editor** and run the contents of
    [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql). This
    creates the `tasks` table, indexes, and Row-Level Security policies.
-3. (Recommended for a single-user app) Under **Authentication → Providers → Email**,
-   keep magic links enabled, and to lock the app to just you, **disable public
+3. **Email the 6-digit code.** Under **Authentication → Emails → Templates → Magic Link**,
+   make sure the template includes the code token `{{ .Token }}` (the default template only
+   has the link). For example:
+   ```html
+   <h2>Your sign-in code</h2>
+   <p>Enter this code to sign in:</p>
+   <p style="font-size:28px;font-weight:bold;letter-spacing:4px;">{{ .Token }}</p>
+   <p>Or click this link: <a href="{{ .ConfirmationURL }}">Sign in</a></p>
+   ```
+4. (Recommended for a single-user app) Under **Authentication → Providers → Email**,
+   keep email sign-in enabled, and to lock the app to just you, **disable public
    sign-ups** ("Allow new users to sign up") after your first login — or restrict
    sign-ups to your address. Row-Level Security already prevents anyone from seeing
    anyone else's tasks regardless.
+5. **Email rate limits:** Supabase's built-in email is capped at a few messages per
+   hour — plenty for a single user (you log in rarely thanks to the persistent session),
+   but if you hit "rate limit exceeded" while testing, wait ~1 hour or configure custom
+   SMTP under **Authentication → Emails → SMTP Settings** for higher limits.
 
 ### 2. Configure local environment
 
