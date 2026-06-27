@@ -28,7 +28,7 @@ export function TaskRow({
   const [confirming, setConfirming] = useState(false)
 
   return (
-    <li className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5 shadow-sm">
+    <li className="flex items-start gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5 shadow-sm sm:items-center">
       <button
         type="button"
         role="checkbox"
@@ -57,19 +57,20 @@ export function TaskRow({
       <button
         type="button"
         onClick={() => onEdit(task)}
-        className="min-w-0 flex-1 text-left"
+        title={task.name}
+        className="flex min-w-0 flex-1 flex-col gap-1 text-left sm:flex-row sm:items-center sm:gap-3"
         aria-label={`Edit ${task.name}`}
       >
         <span
           className={
             completed
-              ? 'block truncate text-slate-400 line-through decoration-red-500 decoration-2'
-              : 'block truncate text-slate-900'
+              ? 'min-w-0 max-w-full truncate text-slate-400 line-through decoration-red-500 decoration-2 sm:flex-1'
+              : 'min-w-0 max-w-full truncate text-slate-900 sm:flex-1'
           }
         >
           {task.name}
         </span>
-        <span className="mt-1 flex flex-wrap items-center gap-1.5">
+        <span className="flex shrink-0 flex-wrap items-center gap-1.5">
           <Pill className={priorityPill[task.priority]}>{task.priority}</Pill>
           <Pill>{task.urgency}</Pill>
           <Pill>{task.category}</Pill>
